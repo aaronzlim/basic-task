@@ -2,12 +2,25 @@
 
 import sqlite3
 import PySimpleGUI as sg
+
+try:
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError:
+    from yaml import Loader, Dumper
+
 from src.layout import layout
 from src.event_handler import handle_event
 
 if __name__ == '__main__':
 
-    sg.theme('Default')
+    config_file = Path('./config/config.yml')
+    try:
+        with open(config_file.resolve(), 'r') as yaml_file:
+            config = yaml.load(yaml_file)
+    except:
+        config = {'theme': 'Default', 'font-family': 'Verdana', 'font-size': 14}
+
+    sg.theme(config['theme'])
 
     window = sg.Window('Basic Task', layout())
     window.Finalize()
