@@ -1,3 +1,2 @@
-theme: Default
-font-family: Verdana
-font-size: 14
+theme: DarkTeal12 # see config/themes.txt
+font-family: Futura
