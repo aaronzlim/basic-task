@@ -12,4 +12,5 @@ DEFAULT_CONFIG =    {
                         'font-size': 12,
                     }
 
-DATABASE_PATH = Path('./database/tasks.db')
+DATABASE_FILE_PATH = Path('./database/tasks.db')
+DATABASE_FILE_STR = DATABASE_FILE_PATH.resolve()

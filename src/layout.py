@@ -32,19 +32,19 @@ _filters_layout =   [
                         [
                             sg.Text('Label', key='label-text', size=(10,1)),
                             sg.Combo(default_value='All', values=['All'], key='label-filter-combo',
-                                     size=(15, 1), readonly=True),
+                                     size=(15, 1), readonly=True, enable_events=True),
                         ],
                         [
                             sg.Text('Status', key='status-text', size=(10, 1)),
                             sg.Combo(key='status-filter-combo', default_value='All',
                                      values=['All', 'Complete', 'Incomplete'], size=(15, 1),
-                                     readonly=True),
+                                     readonly=True, enable_events=True),
 
                         ],
                         [
                             sg.Text('Contains Text', key='contains-text'),
                             sg.InputText(default_text='', key='text-filter-inputtext',
-                                         size=(15, 1)),
+                                         size=(15, 1), enable_events=True),
                         ],
                     ]
 

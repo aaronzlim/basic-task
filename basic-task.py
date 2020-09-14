@@ -12,10 +12,11 @@ try:
 except ImportError:
     from yaml import Loader, Dumper
 
-from src.constants import CONFIG_FILE_PATH, DEFAULT_CONFIG, DATABASE_PATH
+from src.constants import CONFIG_FILE_PATH, DEFAULT_CONFIG, DATABASE_FILE_PATH
 from src.layout import layout
-from src.event_handler import handle_event
+from src.events import handle_event
 from src.utils import hex2rgb, rgb2hex, rgb2grayscale, complement_color
+from src import database as db
 
 def fix_element_background_color(elements, new_color: Union[str, Tuple[int]]):
     """Change the background color for all Text and Frame elements.
@@ -76,13 +77,13 @@ if __name__ == '__main__':
     # Make the delete button red for visibility/safety
     window['delete-button'].update(button_color=(window['delete-button'].ButtonColor[0], 'red'))
 
-    # TODO: Make sure the database exists, and if not, create it
-    if not DATABASE_PATH.exists():
-        pass
+    if not DATABASE_FILE_PATH.exists():
+        db.init()
 
     ### The Main Event Loop ###
     while True:
         event, values = window.read()
+        print(event, values)
         if event == sg.WIN_CLOSED:
             break
         else:
