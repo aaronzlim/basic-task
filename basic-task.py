@@ -51,15 +51,16 @@ if __name__ == '__main__':
             config = yaml.load(yaml_file, Loader=Loader)
     except Exception as e:
         print(e)
-        print('Using default configuration.')
+        sg.popup_error('Config Error: Unable to load config file. Using default configuration.')
         config = DEFAULT_CONFIG
 
     sg.theme(config['theme']) # set the theme (see ./config/themes.txt)
 
-    window = sg.Window('Basic Task', layout(),
-                       font=(config.get('font-family', DEFAULT_CONFIG['font-family']),
+    window = sg.Window( 'Basic Task', layout(),
+                        font=(config.get('font-family', DEFAULT_CONFIG['font-family']),
                              config.get('font-size', DEFAULT_CONFIG['font-size'])
-                            )
+                            ),
+                        resizable=False,
                       )
     window.Finalize()
 
@@ -77,18 +78,50 @@ if __name__ == '__main__':
     # Make the delete button red for visibility/safety
     window['delete-button'].update(button_color=(window['delete-button'].ButtonColor[0], 'red'))
 
-    if not DATABASE_FILE_PATH.exists():
+    if not DATABASE_FILE_PATH.parent.exists():
+        DATABASE_FILE_PATH.parent.mkdir()
+    elif not DATABASE_FILE_PATH.exists():
         db.init()
 
-    ### The Main Event Loop ###
-    while True:
-        event, values = window.read()
-        print(event, values)
-        if event == sg.WIN_CLOSED:
-            break
-        else:
-            err = handle_event(window, event, values)
-            if err:
-                print(f'Failed to handle {event} event: {err}')
+    with db.connection() as conn:
+        c = conn.cursor()
+        c.execute("SELECT Task, Status, Due, Label FROM tasks")
+        window['task-table'].update(values=c.fetchall())
 
-    window.close()
+    ### The Main Event Loop ###
+    try:
+        while True:
+            event, values = window.read()
+
+            if event == sg.WIN_CLOSED:
+                break
+            else:
+                err = handle_event(window, event, values)
+                if err:
+                    sg.popup_error(f'Failed to handle {event} event: {err}')
+
+                # update the table
+                label_filter = values['label-filter-combo']
+                status_filter = values['status-filter-combo']
+                text_filter = values['text-filter-inputtext']
+                with db.connection() as conn:
+                    c = conn.cursor()
+                    c.execute(
+                                """
+                                SELECT
+                                    taskid,
+                                    task,
+                                    status,
+                                    due,
+                                    label
+                                FROM
+                                    tasks
+                                """ # TODO: Add WHERE clause for filtering
+                            )
+                    window['task-table'].update(values=c.fetchall())
+
+    except Exception as e:
+        raise(e)
+
+    finally:
+        window.close()

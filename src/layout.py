@@ -57,13 +57,14 @@ _layout =   [
                     sg.Frame(title='Actions', layout=_buttons_layout, key='actions-frame'),
                 ],
                 [ # Task table
-                    sg.Table(   headings=['Task', 'Status', 'Due', 'Label'],
-                                values=[['', '', '', '']],
+                    sg.Table(   headings=['ID', 'Task', 'Status', 'Due', 'Label'],
+                                values=[['', '', '', '', '']],
                                 key='task-table',
                                 justification='left',
-                                num_rows=20,
-                                col_widths=[25, 10, 10],
-                                auto_size_columns=False
+                                num_rows=10,
+                                col_widths=[3, 20, 8, 8, 8],
+                                auto_size_columns=False,
+                                vertical_scroll_only=False
                             ),
                 ]
             ]
