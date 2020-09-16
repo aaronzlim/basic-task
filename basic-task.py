@@ -80,7 +80,8 @@ if __name__ == '__main__':
 
     if not DATABASE_FILE_PATH.parent.exists():
         DATABASE_FILE_PATH.parent.mkdir()
-    elif not DATABASE_FILE_PATH.exists():
+
+    if not DATABASE_FILE_PATH.exists():
         db.init()
 
     with db.connection() as conn:

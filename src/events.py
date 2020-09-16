@@ -18,6 +18,6 @@ def handle_event(window: Window, event: str, values: dict) -> str:
                 conn.commit()
 
     elif event == 'delete-button':
-        pass
+        pass # TODO: Implement delete button
 
     return err_str
