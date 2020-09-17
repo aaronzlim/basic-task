@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
     with db.connection() as conn:
         c = conn.cursor()
-        c.execute("SELECT Task, Status, Due, Label FROM tasks")
+        c.execute("SELECT taskid, task, status, due, label FROM tasks")
         window['task-table'].update(values=c.fetchall())
 
     ### The Main Event Loop ###
@@ -109,14 +109,7 @@ if __name__ == '__main__':
                     c = conn.cursor()
                     c.execute(
                                 """
-                                SELECT
-                                    taskid,
-                                    task,
-                                    status,
-                                    due,
-                                    label
-                                FROM
-                                    tasks
+                                SELECT taskid, task, status, due, label FROM tasks
                                 """ # TODO: Add WHERE clause for filtering
                             )
                     window['task-table'].update(values=c.fetchall())

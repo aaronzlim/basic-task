@@ -62,12 +62,18 @@ _layout =   [
                                 key='task-table',
                                 justification='left',
                                 num_rows=10,
-                                col_widths=[3, 20, 8, 8, 8],
+                                col_widths=[5, 20, 8, 8, 8],
                                 auto_size_columns=False,
                                 vertical_scroll_only=False
                             ),
                 ]
             ]
+
+ID_INDEX = 0
+TASK_INDEX = 1
+STATUS_INDEX = 2
+DUE_INDEX = 3
+LABEL_INDEX = 4
 
 def layout():
     return _layout
