@@ -2,27 +2,30 @@
 
 from typing import Tuple
 from sqlite3 import Error
-from PySimpleGUI import Window
+from PySimpleGUI import Window, WIN_CLOSED
 
 from src import database as db
-from src.layout import ID_INDEX, TASK_INDEX, STATUS_INDEX, DUE_INDEX, LABEL_INDEX
+from src.layout import ID_INDEX, TASK_INDEX, STATUS_INDEX, DUE_INDEX, LABEL_INDEX, edit_layout
+from src import constants as const
 
 def handle_event(window: Window, event: str, values: dict) -> str:
     table = window['task-table'].get()
     selected_taskids = ','.join((str(table[row][ID_INDEX]) for row in values['task-table']))
+    commit = False
     with db.connection() as conn:
         try:
             c = conn.cursor()
             if event == 'add-button':
                 new_task = values['task-inputtext']
                 if new_task:
-                    c.execute(f"""
-                        INSERT INTO tasks (task, status)
-                        VALUES ('{new_task}', 'Incomplete')
-                        """)
+                    c.execute(f"""INSERT INTO tasks (task, priority, status)
+                                  VALUES ('{new_task}', 'Medium', 'Incomplete')"""
+                             )
+                commit = True
 
             elif event == 'delete-button' and selected_taskids:
                 c.execute(f"DELETE FROM tasks WHERE taskid IN ({selected_taskids})")
+                commit = True
 
             elif event =='status-button' and selected_taskids:
                 to_complete = []
@@ -36,15 +39,39 @@ def handle_event(window: Window, event: str, values: dict) -> str:
                 if to_complete:
                     task_ids = ','.join(to_complete)
                     c.execute(f"""UPDATE tasks SET status='Complete' WHERE taskid IN ({task_ids})""")
+                    commit = True
 
                 if to_incomplete:
                     task_ids = ','.join(to_incomplete)
                     c.execute(f"""UPDATE tasks SET status='Incomplete' WHERE taskid IN ({task_ids})""")
+                    commit = True
 
             elif event == 'edit-button' and selected_taskids:
-                pass
+                # TODO: Finish this case
+                font = const.get_font()
+                edit_window = Window('Edit', edit_layout(), font=font, resizable=False)
+                edit_window.Finalize()
+                window.Disappear()
+                try:
+                    while True:
+                        event, values = edit_window.read()
+                        if event == WIN_CLOSED:
+                            break
 
-            conn.commit()
+                        elif event == 'save-button':
+                            # TODO: Grab all fields and update database
+                            commit = True
+                            break
+
+                    edit_window.close()
+                    window.Reappear()
+
+                except:
+                    edit_window.close()
+                    window.Reappear()
+
+            if commit:
+                conn.commit()
 
         except Error as e:
             err_str = str(e)

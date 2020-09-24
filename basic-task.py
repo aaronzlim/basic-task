@@ -6,13 +6,7 @@ import sqlite3
 from sqlite3 import Error
 import PySimpleGUI as sg
 
-import yaml
-try:
-    from yaml import CLoader as Loader, CDumper as Dumper
-except ImportError:
-    from yaml import Loader, Dumper
-
-from src.constants import CONFIG_FILE_PATH, DEFAULT_CONFIG, DATABASE_FILE_PATH
+from src import constants as const
 from src.layout import layout
 from src.events import handle_event
 from src.utils import hex2rgb, rgb2hex, rgb2grayscale, complement_color
@@ -45,23 +39,12 @@ def fix_element_background_color(elements, new_color: Union[str, Tuple[int]]):
 
 if __name__ == '__main__':
 
-    ### Load the config file ###
-    try:
-        with open(CONFIG_FILE_PATH.resolve(), 'r') as yaml_file:
-            config = yaml.load(yaml_file, Loader=Loader)
-    except Exception as e:
-        print(e)
-        sg.popup_error('Config Error: Unable to load config file. Using default configuration.')
-        config = DEFAULT_CONFIG
+    config = const.read_config()
+    font = const.get_font()
 
     sg.theme(config['theme']) # set the theme (see ./config/themes.txt)
 
-    window = sg.Window( 'Basic Task', layout(),
-                        font=(config.get('font-family', DEFAULT_CONFIG['font-family']),
-                             config.get('font-size', DEFAULT_CONFIG['font-size'])
-                            ),
-                        resizable=False,
-                      )
+    window = sg.Window( 'Basic Task', layout(), font=font, resizable=False)
     window.Finalize()
 
     ### Some minor aesthetic changes ###
@@ -76,17 +59,17 @@ if __name__ == '__main__':
     fix_element_background_color(window.AllKeysDict.values(), new_color=curr_background_color)
 
     # Make the delete button red for visibility/safety
-    window['delete-button'].update(button_color=(window['delete-button'].ButtonColor[0], 'red'))
+    window['delete-button'].update(button_color=(window['delete-button'].ButtonColor[0], '#7a0000'))
 
-    if not DATABASE_FILE_PATH.parent.exists():
-        DATABASE_FILE_PATH.parent.mkdir()
+    if not const.DATABASE_FILE_PATH.parent.exists():
+        const.DATABASE_FILE_PATH.parent.mkdir()
 
-    if not DATABASE_FILE_PATH.exists():
+    if not const.DATABASE_FILE_PATH.exists():
         db.init()
 
     with db.connection() as conn:
         c = conn.cursor()
-        c.execute("SELECT taskid, task, status, due, label FROM tasks")
+        c.execute("SELECT taskid, task, priority, status, due, label FROM tasks")
         window['task-table'].update(values=c.fetchall())
 
     ### The Main Event Loop ###
@@ -99,7 +82,7 @@ if __name__ == '__main__':
             else:
                 err = handle_event(window, event, values)
                 if err:
-                    sg.popup_error(f'Failed to handle {event} event: {err}')
+                    sg.popup_error(f'Failed to handle {event} event: {err}', title='Error', font=font)
 
                 # update the table
                 label_filter = values['label-filter-combo']
@@ -109,7 +92,7 @@ if __name__ == '__main__':
                     c = conn.cursor()
                     c.execute(
                                 """
-                                SELECT taskid, task, status, due, label FROM tasks
+                                SELECT taskid, task, priority, status, due, label FROM tasks
                                 """ # TODO: Add WHERE clause for filtering
                             )
                     window['task-table'].update(values=c.fetchall())

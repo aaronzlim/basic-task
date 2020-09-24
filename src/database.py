@@ -12,6 +12,7 @@ _INIT_SQL = \
 CREATE TABLE IF NOT EXISTS tasks(
     taskid INTEGER PRIMARY KEY AUTOINCREMENT,
     task TEXT NOT NULL UNIQUE,
+    priority, TEXT NOT NULL DEFAULT 'Medium',
     status TEXT DEFAULT 'Incomplete',
     due TEXT,
     label TEXT
