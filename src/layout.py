@@ -36,7 +36,7 @@ _filters_layout =   [
                         ],
                         [
                             sg.Text('Status', key='status-text', size=(10, 1)),
-                            sg.Combo(key='status-filter-combo', default_value='All',
+                            sg.Combo(key='status-filter-combo', default_value='Incomplete',
                                      values=['All', 'Complete', 'Incomplete'], size=(15, 1),
                                      readonly=True, enable_events=True),
 
@@ -110,7 +110,7 @@ def edit_layout():
                                       size=(6, 1),
                                       close_when_date_chosen=True,
                                       format='%m/%d/%Y',
-                                      target='due-inputtext',
+                                      target='edit-due-inputtext',
                                      )
                 ],
                 [

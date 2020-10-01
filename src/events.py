@@ -47,18 +47,30 @@ def handle_event(window: Window, event: str, values: dict) -> str:
                     commit = True
 
             elif event == 'edit-button' and selected_taskids:
-                # TODO: Finish this case
+                # get current values for requested task
+                c.execute(f"SELECT task, priority, status, due, label FROM tasks WHERE taskid = {selected_taskids[0]}")
+                task, priority, status, due, label = c.fetchall()[0]
+
+                # update edit window with current values
                 font = const.get_font()
                 edit_window = Window('Edit', edit_layout(), font=font, resizable=False)
                 edit_window.Finalize()
                 window.Disappear()
+                edit_window['edit-task-inputtext'].update(value=task)
+                edit_window['edit-priority-combo'].update(value=priority)
+                edit_window['edit-status-combo'].update(value=status)
+                if due:
+                    edit_window['edit-due-inputtext'].update(value=due)
+                if label:
+                    edit_window['edit-label-inputtext'].update(value=label)
+
                 try:
                     while True:
                         event, values = edit_window.read()
-                        if event == WIN_CLOSED:
+                        if event == WIN_CLOSED or event == 'edit-cancel-button':
                             break
 
-                        elif event == 'save-button':
+                        elif event == 'edit-save-button':
                             # TODO: Grab all fields and update database
                             commit = True
                             break
