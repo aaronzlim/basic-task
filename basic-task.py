@@ -8,7 +8,7 @@ import PySimpleGUI as sg
 
 from src import constants as const
 from src.layout import layout
-from src.events import handle_event
+from src.events import handle_event, update_label_filter
 from src.utils import hex2rgb, rgb2hex, rgb2grayscale, complement_color
 from src import database as db
 
@@ -71,6 +71,8 @@ if __name__ == '__main__':
         c = conn.cursor()
         c.execute("SELECT taskid, task, priority, status, due, label FROM tasks")
         window['task-table'].update(values=c.fetchall())
+
+    update_label_filter(window)
 
     ### The Main Event Loop ###
     try:

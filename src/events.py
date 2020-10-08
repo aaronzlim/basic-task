@@ -8,6 +8,17 @@ from src import database as db
 from src.layout import ID_INDEX, TASK_INDEX, STATUS_INDEX, DUE_INDEX, LABEL_INDEX, edit_layout
 from src import constants as const
 
+def update_label_filter(window):
+    with db.connection() as conn:
+        try:
+            c = conn.cursor()
+            c.execute('SELECT label FROM tasks')
+            labels = c.fetchall()[0]
+            labels = ['All'] + list(labels)
+            window['label-filter-combo'].Update(values=labels)
+        except Exception as e:
+            print(e)
+
 def handle_event(window: Window, event: str, values: dict) -> str:
     table = window['task-table'].get()
     selected_taskids = ','.join((str(table[row][ID_INDEX]) for row in values['task-table']))
@@ -69,7 +80,6 @@ def handle_event(window: Window, event: str, values: dict) -> str:
                             break
 
                         elif event == 'edit-save-button':
-                            # TODO: Grab all fields and update database
                             task = edit_window['edit-task-inputtext'].get()
                             priority = edit_window['edit-priority-combo'].get()
                             status = edit_window['edit-status-combo'].get()
@@ -96,6 +106,7 @@ def handle_event(window: Window, event: str, values: dict) -> str:
 
             if commit:
                 conn.commit()
+                update_label_filter(window)
 
         except Error as e:
             err_str = str(e)
