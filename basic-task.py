@@ -37,6 +37,31 @@ def fix_element_background_color(elements, new_color: Union[str, Tuple[int]]):
                 for elem in row:
                     elem.ParentRowFrame.config(background=new_color)
 
+def get_update_query(window):
+    # update the table
+    label_filter = window['label-filter-combo'].get()
+    status_filter = window['status-filter-combo'].get()
+    text_filter = window['text-filter-inputtext'].get()
+    update_query = 'SELECT taskid, task, priority, status, due, label FROM tasks'
+
+    if label_filter or status_filter or text_filter:
+        update_query += ' WHERE'
+
+    if label_filter:
+        update_query += f" label='{label_filter}'"
+
+    if status_filter:
+        if label_filter:
+            update_query += ' AND'
+        update_query += f" status='{status_filter}'"
+
+    if text_filter:
+        if label_filter or status_filter:
+            update_query += ' AND'
+        update_query += f"task LIKE '%{text_filter}%'"
+
+    return update_query
+
 if __name__ == '__main__':
 
     config = const.read_config()
@@ -69,14 +94,15 @@ if __name__ == '__main__':
 
     with db.connection() as conn:
         c = conn.cursor()
-        c.execute("SELECT taskid, task, priority, status, due, label FROM tasks")
+        c.execute(get_update_query(window))
         window['task-table'].update(values=c.fetchall())
-
-    update_label_filter(window)
 
     ### The Main Event Loop ###
     try:
         while True:
+
+            update_label_filter(window)
+
             event, values = window.read()
 
             if event == sg.WIN_CLOSED:
@@ -86,17 +112,9 @@ if __name__ == '__main__':
                 if err:
                     sg.popup_error(f'Failed to handle {event} event: {err}', title='Error', font=font)
 
-                # update the table
-                label_filter = values['label-filter-combo']
-                status_filter = values['status-filter-combo']
-                text_filter = values['text-filter-inputtext']
-                with db.connection() as conn:
+                with db.connection() as conn: # TODO: need to respond to enter button for text filter
                     c = conn.cursor()
-                    c.execute(
-                                """
-                                SELECT taskid, task, priority, status, due, label FROM tasks
-                                """ # TODO: Add WHERE clause for filtering
-                            )
+                    c.execute(get_update_query(window))
                     window['task-table'].update(values=c.fetchall())
 
     except Exception as e:

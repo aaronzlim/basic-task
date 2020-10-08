@@ -13,8 +13,8 @@ def update_label_filter(window):
         try:
             c = conn.cursor()
             c.execute('SELECT label FROM tasks')
-            labels = c.fetchall()[0]
-            labels = ['All'] + list(labels)
+            labels = c.fetchall()
+            labels = [''] + [tup[0] for tup in labels]
             window['label-filter-combo'].Update(values=labels)
         except Exception as e:
             print(e)
@@ -29,8 +29,8 @@ def handle_event(window: Window, event: str, values: dict) -> str:
             if event == 'add-button':
                 new_task = values['task-inputtext']
                 if new_task:
-                    c.execute(f"""INSERT INTO tasks (task, priority, status)
-                                  VALUES ('{new_task}', 'Medium', 'Incomplete')"""
+                    c.execute(f"""INSERT INTO tasks (task, priority, status, due, label)
+                                  VALUES ('{new_task}', 'Medium', 'Incomplete', '', '')"""
                              )
                 commit = True
 
