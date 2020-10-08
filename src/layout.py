@@ -62,7 +62,7 @@ _layout =   [
                                 key='task-table',
                                 justification='left',
                                 num_rows=10,
-                                col_widths=[5, 20, 6, 7, 8, 8],
+                                col_widths=[5, 20, 6, 7, 9, 8],
                                 auto_size_columns=False,
                                 vertical_scroll_only=False
                             ),
@@ -104,7 +104,7 @@ def edit_layout():
                 ],
                 [
                     sg.Text('Due (MM/DD/YYYY)', key='edit-due-text', pad=((3, 0), (3, 3))),
-                    sg.InputText(key='edit-due-inputtext', size=(10, 1)),
+                    sg.InputText(key='edit-due-inputtext', size=(10, 1), readonly=True),
                     sg.CalendarButton('Date',
                                       key='edit-due-calendarbutton',
                                       size=(6, 1),
@@ -114,7 +114,7 @@ def edit_layout():
                                      )
                 ],
                 [
-                    sg.Text('Label', key='edit-label=text', pad=((3, 13), (3, 3))),
+                    sg.Text('Label', key='edit-label-text', pad=((3, 13), (3, 3))),
                     sg.InputText(key='edit-label-inputtext', size=(20, 1))
                 ],
                 [

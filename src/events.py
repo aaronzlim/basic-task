@@ -59,10 +59,8 @@ def handle_event(window: Window, event: str, values: dict) -> str:
                 edit_window['edit-task-inputtext'].update(value=task)
                 edit_window['edit-priority-combo'].update(value=priority)
                 edit_window['edit-status-combo'].update(value=status)
-                if due:
-                    edit_window['edit-due-inputtext'].update(value=due)
-                if label:
-                    edit_window['edit-label-inputtext'].update(value=label)
+                edit_window['edit-due-inputtext'].update(value=due)
+                edit_window['edit-label-inputtext'].update(value=label)
 
                 try:
                     while True:
@@ -72,13 +70,27 @@ def handle_event(window: Window, event: str, values: dict) -> str:
 
                         elif event == 'edit-save-button':
                             # TODO: Grab all fields and update database
+                            task = edit_window['edit-task-inputtext'].get()
+                            priority = edit_window['edit-priority-combo'].get()
+                            status = edit_window['edit-status-combo'].get()
+                            due_date = edit_window['edit-due-inputtext'].get()
+                            label = edit_window['edit-label-inputtext'].get()
+
+                            c.execute(f"""UPDATE tasks SET task='{task}',
+                                                           priority='{priority}',
+                                                           status='{status}',
+                                                           due='{due_date}',
+                                                           label='{label}'
+                                                        WHERE taskid IN ({selected_taskids})""")
+
                             commit = True
                             break
 
                     edit_window.close()
                     window.Reappear()
 
-                except:
+                except Exception as e:
+                    print(e)
                     edit_window.close()
                     window.Reappear()
 
